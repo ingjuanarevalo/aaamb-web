@@ -1,0 +1,121 @@
+<div mat-dialog-title class="modal-title">
+  <mat-icon>task</mat-icon>
+  <span>{{ !editMode ? 'Create a task' : 'Update a task' }}</span>
+  <mat-icon class="close-button" (click)="confirmCloseModal()">cancel</mat-icon>
+</div>
+<mat-dialog-content>
+  @if (taskForm) {
+    <form [formGroup]="taskForm" class="row">
+      <div class="col-12">
+        <div class="form-control">
+          <mat-form-field appearance="outline" color="primary" floatLabel="always">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" name="title" placeholder="Title" autocomplete="off" />
+            <mat-error>Task title is required. Min 3 characters</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="form-control">
+          <mat-form-field appearance="outline" color="primary" floatLabel="always">
+            <mat-label>Description</mat-label>
+            <textarea matInput rows="5" formControlName="description" name="description" placeholder="Description" autocomplete="off"></textarea>
+            <mat-error>Max 500 characters</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="form-control">
+          <mat-form-field appearance="outline" color="primary" floatLabel="always">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status" name="status" placeholder="Status">
+              <mat-option [value]="ETaskStatus.Pending">Pending</mat-option>
+              <mat-option [value]="ETaskStatus.InProgress">In Progress</mat-option>
+              <mat-option [value]="ETaskStatus.Completed">Completed</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="form-control">
+          <mat-form-field appearance="outline" color="primary" floatLabel="always">
+            <mat-label>Priority</mat-label>
+            <mat-select formControlName="priority" name="priority" placeholder="Priority">
+              <mat-option [value]="ETaskPriority.Low">Low</mat-option>
+              <mat-option [value]="ETaskPriority.Medium">Medium</mat-option>
+              <mat-option [value]="ETaskPriority.High">High</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="form-control">
+          <mat-form-field appearance="outline" color="primary" floatLabel="always">
+            <mat-label>Due Date</mat-label>
+            <input
+              matInput
+              formControlName="dueDate"
+              name="dueDate"
+              placeholder="Due Date"
+              autocomplete="off"
+              [matDatepicker]="datePicker"
+              [readonly]="true"
+              [matDatepickerFilter]="datesBeforeTodayFilter"
+            />
+            <mat-datepicker #datePicker></mat-datepicker>
+            <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-error>Due Date required. It has to be later than today</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="form-control">
+          <mat-form-field appearance="outline" color="primary" floatLabel="always">
+            <mat-label>Due Date Time</mat-label>
+            <input
+              matInput
+              formControlName="dueDateTime"
+              name="dueDateTime"
+              placeholder="Due Date Time"
+              autocomplete="off"
+              [matTimepicker]="timepicker"
+            />
+            <mat-timepicker #timepicker interval="5m" />
+            <mat-timepicker-toggle [for]="timepicker" matSuffix />
+            <mat-hint>hh:mm aa</mat-hint>
+            <mat-error>Due Date Time required</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="form-control tags">
+          <mat-form-field appearance="outline" color="primary" floatLabel="always">
+            <mat-label>Tags</mat-label>
+            <mat-chip-grid #tagsChipGrid formControlName="tags">
+              @for (tag of taskForm.value.tags; track tag; let i = $index) {
+                <mat-chip-row (removed)="removeTag(i)">
+                  {{ tag }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip-row>
+              }
+            </mat-chip-grid>
+            <input placeholder="New tag..." [matChipInputFor]="tagsChipGrid" (matChipInputTokenEnd)="addTag($event)" />
+          </mat-form-field>
+        </div>
+      </div>
+    </form>
+  }
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-stroked-button color="primary" (click)="confirmCloseModal()">Close</button>
+  <button mat-flat-button color="primary" (click)="saveTask()" [disabled]="!taskForm || (taskForm && taskForm.invalid) || isSavingTask">
+    @if (!isSavingTask) {
+      <span>Save</span>
+    } @else {
+      <mat-spinner class="white-spinner"></mat-spinner>
+    }
+  </button>
+</mat-dialog-actions>

@@ -32,7 +32,7 @@ export class AlertService {
   }
 
   async presentCloseWindowAlert(): Promise<boolean> {
-    const header = 'Cerrar ventana';
+    const header = 'Close window';
     const message = 'Are you sure to close this window? Changes made will be lost.';
     const notClose = 'Do not close';
     const close = 'Close';
