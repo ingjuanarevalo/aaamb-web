@@ -1,0 +1,97 @@
+@if (isLoadingTasks) {
+  <mat-spinner class="page-spinner"></mat-spinner>
+} @else {
+  <h1>Tasks Manager</h1>
+  @if (screenWidth < 992) {
+  } @else {
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" [animationDuration]="0">
+      <mat-tab label="Tasks">
+        <div class="create">
+          <button mat-flat-button color="primary">
+            <mat-icon>add</mat-icon>
+            <span>New task</span>
+          </button>
+        </div>
+        <div class="search">
+          <mat-form-field appearance="outline">
+            <mat-label>Search a task by title</mat-label>
+            <input matInput placeholder="Title of task" />
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+        </div>
+        <table mat-table [dataSource]="tasks" class="tasks-table">
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef>Title</th>
+            <td mat-cell *matCellDef="let element">{{ element.title }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-chip-set>
+                @if (element.status === ETaskStatus.Pending) {
+                  <mat-chip class="error-chip">Pending</mat-chip>
+                } @else if (element.status === ETaskStatus.InProgress) {
+                  <mat-chip class="warn-chip">In Progress</mat-chip>
+                } @else if (element.status === ETaskStatus.Completed) {
+                  <mat-chip class="success-chip">Completed</mat-chip>
+                }
+              </mat-chip-set>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="priority">
+            <th mat-header-cell *matHeaderCellDef>Priority</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-chip-set>
+                @if (element.priority === ETaskPriority.Low) {
+                  <mat-chip class="success-chip">Low</mat-chip>
+                } @else if (element.priority === ETaskPriority.Medium) {
+                  <mat-chip class="warn-chip">Medium</mat-chip>
+                } @else if (element.priority === ETaskPriority.High) {
+                  <mat-chip class="error-chip">High</mat-chip>
+                }
+              </mat-chip-set>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="dueDate">
+            <th mat-header-cell *matHeaderCellDef>Due Date</th>
+            <td mat-cell *matCellDef="let element">{{ element.dueDate | date: 'MMM dd yyyy' : '' : 'en' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tags">
+            <th mat-header-cell *matHeaderCellDef>Tags</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-chip-set>
+                @for (tag of element.tags; track tag) {
+                  <mat-chip class="primary-chip">
+                    {{ tag }}
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="options">
+            <th mat-header-cell *matHeaderCellDef>Options</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="task-options">
+                <button mat-icon-button color="primary" matTooltip="Edit task">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" matTooltip="Delete task">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </mat-tab>
+      <mat-tab label="Deleted Tasks"> </mat-tab>
+    </mat-tab-group>
+  }
+}

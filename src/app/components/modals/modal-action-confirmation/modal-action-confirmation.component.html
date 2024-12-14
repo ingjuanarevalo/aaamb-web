@@ -1,0 +1,16 @@
+<div mat-dialog-title class="modal-title">
+  <span>{{ header }}</span>
+</div>
+<mat-dialog-content>
+  <p>
+    {{ message }}
+  </p>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-stroked-button color="primary" (click)="closeModal()">
+    {{ cancelText }}
+  </button>
+  <button mat-flat-button color="primary" (click)="confirmAction()">
+    {{ confirmText }}
+  </button>
+</mat-dialog-actions>

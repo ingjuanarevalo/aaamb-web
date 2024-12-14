@@ -1,1 +1,169 @@
-/* You can add global styles to this file, and also import other style files */
+$white: #ffffff;
+$error: #ff3a60;
+$warn: #ffa600;
+$success: #00de63;
+
+* {
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  box-sizing: border-box;
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: $white;
+    min-width: 15px;
+    width: 15px;
+    display: flex;
+  }
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #7b7b7c;
+    border-radius: 10px;
+    &:hover {
+      background: #6d6d6d;
+    }
+  }
+}
+
+html,
+body {
+  min-height: 100%;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.page-spinner {
+  --mdc-circular-progress-size: 50px;
+  --mdc-circular-progress-active-indicator-width: 50px;
+  width: 50px !important;
+  height: 50px !important;
+  margin: auto;
+}
+
+.mat {
+  &-mdc-snack-bar-container {
+    &.success-toast {
+      --mdc-snackbar-container-color: var(--mat-sys-primary);
+      .mdc-snackbar__surface {
+        .mat-mdc-snack-bar-label {
+          --mdc-snackbar-supporting-text-size: 16px;
+          --mdc-snackbar-supporting-text-color: $white;
+        }
+        .mat-mdc-snack-bar-actions {
+          --mdc-text-button-label-text-size: 12px;
+          --mat-snack-bar-button-color: $white;
+        }
+      }
+    }
+    &.error-toast {
+      .mdc-snackbar__surface {
+        --mdc-snackbar-container-color: #{$error};
+        .mat-mdc-snack-bar-label {
+          --mdc-snackbar-supporting-text-size: 16px;
+          --mdc-snackbar-supporting-text-color: $white;
+        }
+        .mat-mdc-snack-bar-actions {
+          --mdc-text-button-label-text-size: 12px;
+          --mat-snack-bar-button-color: $white;
+        }
+      }
+    }
+  }
+  &-mdc-table {
+    &.tasks-table {
+      thead {
+        background: var(--mat-sys-primary);
+      }
+      .mat-mdc-header-row {
+        color: $white;
+      }
+    }
+  }
+  &-mdc-chip {
+    &.error-chip {
+      .mdc-evolution-chip__text-label {
+        --mdc-chip-label-text-color: #{$error};
+      }
+      .mdc-evolution-chip__action--primary::before {
+        --mdc-chip-outline-color: #{$error};
+      }
+      &:hover .mat-mdc-chip-focus-overlay {
+        --mdc-chip-hover-state-layer-color: #{$error};
+        --mdc-chip-hover-state-layer-opacity: 0.06;
+      }
+    }
+    &.warn-chip {
+      .mdc-evolution-chip__text-label {
+        --mdc-chip-label-text-color: #{$warn};
+      }
+      .mdc-evolution-chip__action--primary::before {
+        --mdc-chip-outline-color: #{$warn};
+      }
+      &:hover .mat-mdc-chip-focus-overlay {
+        --mdc-chip-hover-state-layer-color: #{$warn};
+        --mdc-chip-hover-state-layer-opacity: 0.06;
+      }
+    }
+    &.success-chip {
+      .mdc-evolution-chip__text-label {
+        --mdc-chip-label-text-color: #{$success};
+      }
+      .mdc-evolution-chip__action--primary::before {
+        --mdc-chip-outline-color: #{$success};
+      }
+      &:hover .mat-mdc-chip-focus-overlay {
+        --mdc-chip-hover-state-layer-color: #{$success};
+        --mdc-chip-hover-state-layer-opacity: 0.06;
+      }
+    }
+    &.primary-chip {
+      .mdc-evolution-chip__text-label {
+        --mdc-chip-label-text-color: var(--mat-sys-primary);
+      }
+      .mdc-evolution-chip__action--primary::before {
+        --mdc-chip-outline-color: var(--mat-sys-primary);
+      }
+      &:hover .mat-mdc-chip-focus-overlay {
+        --mdc-chip-hover-state-layer-color: var(--mat-sys-primary);
+        --mdc-chip-hover-state-layer-opacity: 0.06;
+      }
+    }
+  }
+  &-mdc-icon-button {
+    --mdc-icon-button-icon-color: var(--mat-sys-primary);
+  }
+  &-mdc-tooltip {
+    .mdc-tooltip__surface {
+      max-width: fit-content !important;
+      font-family: Roboto, 'Helvetica Neue', sans-serif !important;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+  }
+}
+
+.modal {
+  &-general {
+    .mat-mdc-dialog-content {
+      padding: 2rem 1.25rem 1.5rem !important;
+      overflow-x: hidden;
+      max-height: unset;
+      p {
+        color: var(--black);
+        line-height: 1.5;
+        font-weight: normal;
+        letter-spacing: normal;
+      }
+    }
+    .mat-mdc-dialog-actions {
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+    }
+  }
+}
