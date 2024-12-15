@@ -1,0 +1,22 @@
+<div mat-dialog-title class="modal-title">
+  <mat-icon>history</mat-icon>
+  <span>Task's change history</span>
+  <mat-icon class="close-button" (click)="closeModal()">cancel</mat-icon>
+</div>
+<mat-dialog-content>
+  @if (task && task.history.length) {
+    <div class="change-list">
+      @for (record of task.history; track record._id) {
+        <div class="change-item">
+          <h3>{{ record.date | date: 'MMM dd yyyy - hh:mm aa' : '' : 'en' }}</h3>
+          <p>{{ record.change }}</p>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="no-changes">There's no change history for this task</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-stroked-button color="primary" (click)="closeModal()">Close</button>
+</mat-dialog-actions>

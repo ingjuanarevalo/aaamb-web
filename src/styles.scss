@@ -168,6 +168,11 @@ body {
   &-mdc-form-field {
     width: 100%;
   }
+  &-mdc-tab-body {
+    .mat-mdc-tab-body-content {
+      overflow: hidden;
+    }
+  }
 }
 
 .modal {

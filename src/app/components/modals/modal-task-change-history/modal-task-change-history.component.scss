@@ -1,0 +1,26 @@
+:host {
+  .change-list {
+    .change-item {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid grey;
+      h3 {
+        margin-top: 0;
+        margin-bottom: 0.25rem;
+        font-size: 15px;
+        font-weight: 500;
+      }
+      p {
+        white-space: pre-line;
+        margin: 0;
+      }
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  .no-changes {
+    text-align: center;
+  }
+}

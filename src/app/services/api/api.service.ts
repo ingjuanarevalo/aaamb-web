@@ -14,11 +14,11 @@ export class ApiService {
   }
 
   getTasks(queryParams?: any): Observable<any> {
-    return this.http.get(`${environment.apiBaseUrl}/tasks`, queryParams);
+    return this.http.get(`${environment.apiBaseUrl}/tasks`, { params: queryParams });
   }
 
   getDeletedTasks(queryParams?: any): Observable<any> {
-    return this.http.get(`${environment.apiBaseUrl}/tasks/deleted`, queryParams);
+    return this.http.get(`${environment.apiBaseUrl}/tasks/deleted`, { params: queryParams });
   }
 
   getTaskById(taskId: string): Observable<any> {

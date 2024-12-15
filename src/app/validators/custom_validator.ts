@@ -13,4 +13,17 @@ export class CustomValidator {
       return null;
     }
   };
+
+  static validateEndDate: any = (form: FormGroup) => {
+    const startDate = form.get('startDate');
+    const endDate = form.get('endDate');
+    if (!startDate || !endDate) return null;
+
+    if (startDate.value && endDate.value && endDate.value < startDate.value) {
+      endDate.setErrors({ endDateIsBefore: true });
+      return { endDateIsBefore: true };
+    } else {
+      return null;
+    }
+  };
 }

@@ -6,7 +6,7 @@ import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 import { ApiService } from '../../services/api/api.service';
 import { ToastService } from '../../services/toast/toast.service';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { ETaskStatus } from '../../enums/task-status.enum';
 import { ETaskPriority } from '../../enums/task-priority.enum';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -19,11 +19,19 @@ import { ModalService } from '../../services/modal/modal.service';
 import { DateTime } from 'luxon';
 import { AlertService } from '../../services/alert/alert.service';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { CustomValidator } from '../../validators/custom_validator';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { pickBy } from 'lodash-es';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-tasks',
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatProgressSpinnerModule,
     MatTableModule,
     MatChipsModule,
@@ -33,7 +41,11 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSortModule
+    MatSortModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatDatepickerModule,
+    MatPaginatorModule
   ],
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.scss'
@@ -43,10 +55,15 @@ export class TasksComponent implements OnInit, OnDestroy {
   @ViewChild('deletedTable', { static: false }) deletedTable!: MatTable<ITask>;
   @ViewChild('originalSort', { static: false }) originalSort!: MatSort;
   @ViewChild('deletedSort', { static: false }) deletedSort!: MatSort;
+  @ViewChild('originalPaginator', { static: false }) originalPaginator!: MatPaginator;
+  @ViewChild('deletedPaginator', { static: false }) deletedPaginator!: MatPaginator;
 
   screenWidth = 0;
   isLoadingTasks = true;
-  displayedColumns: string[] = ['title', 'status', 'priority', 'dueDate', 'tags', 'options'];
+  mobileColumns: string[] = ['title', 'options'];
+  tabletColumns: string[] = ['title', 'dueDate', 'options'];
+  desktopColumns: string[] = ['title', 'status', 'priority', 'dueDate', 'tags', 'options'];
+  displayedColumns: string[] = this.desktopColumns;
   tasks!: MatTableDataSource<ITask>;
   deletedTasks!: MatTableDataSource<ITask>;
   ETaskStatus = ETaskStatus;
@@ -62,6 +79,8 @@ export class TasksComponent implements OnInit, OnDestroy {
     [ETaskStatus.InProgress]: 1,
     [ETaskStatus.Completed]: 2
   };
+  tasksFilterForm!: FormGroup;
+  isFilteringTasks = false;
 
   private unsubscribe$ = new Subject<void>();
 
@@ -78,17 +97,29 @@ export class TasksComponent implements OnInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
 
     this.screenWidth = window.innerWidth;
+    this.switchColumns();
+  }
+
+  switchColumns(): void {
+    if (this.screenWidth < 768) {
+      this.displayedColumns = this.mobileColumns;
+    } else if (this.screenWidth >= 768 && this.screenWidth < 992) {
+      this.displayedColumns = this.tabletColumns;
+    } else {
+      this.displayedColumns = this.desktopColumns;
+    }
   }
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    this.onTasksReady.pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
-      this.setTasksSort();
-    });
-
     this.screenWidth = window.innerWidth;
+    this.switchColumns();
+    this.onTasksReady.pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
+      this.setTasksSortAndPaginator();
+    });
     this.getTasks();
+    this.initFilterForm();
   }
 
   ngOnDestroy(): void {
@@ -96,8 +127,65 @@ export class TasksComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  setTasksSort(): void {
+  initFilterForm(): void {
+    this.tasksFilterForm = new FormGroup(
+      {
+        status: new FormControl(null),
+        priority: new FormControl(null),
+        tags: new FormControl([]),
+        startDate: new FormControl(null),
+        endDate: new FormControl(null)
+      },
+      { validators: CustomValidator.validateEndDate }
+    );
+  }
+
+  addTag(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      const currentTags = this.tasksFilterForm.get('tags')?.value;
+      currentTags.push(value);
+    }
+    event.chipInput.clear();
+  }
+
+  removeTag(index: number): void {
+    const currentTags = this.tasksFilterForm.get('tags')?.value;
+    currentTags.splice(index, 1);
+  }
+
+  async filterTasks(): Promise<void> {
+    try {
+      this.isFilteringTasks = true;
+      const queryParams: any = pickBy(this.tasksFilterForm.value, (value) => value !== null && (!Array.isArray(value) || value.length));
+      if (!queryParams.startDate || !queryParams.endDate) {
+        delete queryParams.startDate;
+        delete queryParams.endDate;
+      } else if (queryParams.startDate && queryParams.endDate) {
+        queryParams.startDate = (queryParams.startDate as DateTime).startOf('day').toUTC().toISO();
+        queryParams.endDate = (queryParams.endDate as DateTime).endOf('day').toUTC().toISO();
+      }
+      const { tasks } = await firstValueFrom(this.api.getTasks(queryParams));
+      this.tasks.data = [...tasks];
+      this.isFilteringTasks = false;
+    } catch (errorResponse: any) {
+      this.isFilteringTasks = false;
+      const errorMessage = errorResponse?.error?.message;
+      const defaultError = 'There was an error saving a task';
+      this.toast.presentErrorToast(errorMessage || defaultError);
+    }
+  }
+
+  isFilterFormEmpty(): boolean {
+    return Object.values(this.tasksFilterForm.value).every(
+      (value: any) => value === null || value === undefined || value === '' || (Array.isArray(value) && !value.length)
+    );
+  }
+
+  setTasksSortAndPaginator(): void {
     setTimeout(() => {
+      this.tasks.paginator = this.originalPaginator;
+      this.deletedTasks.paginator = this.deletedPaginator;
       this.tasks.sort = this.originalSort;
       this.deletedTasks.sort = this.deletedSort;
 
@@ -113,7 +201,7 @@ export class TasksComponent implements OnInit, OnDestroy {
 
       this.tasks.sortingDataAccessor = customSortFunction;
       this.deletedTasks.sortingDataAccessor = customSortFunction;
-    }, 500);
+    }, 200);
   }
 
   async getTasks(): Promise<void> {
@@ -125,8 +213,10 @@ export class TasksComponent implements OnInit, OnDestroy {
       this.setTasksFilter();
       this.isLoadingTasks = false;
       this.onTasksReady.next();
-    } catch (error) {
-      this.toast.presentGeneralErrorToast();
+    } catch (errorResponse: any) {
+      const errorMessage = errorResponse?.error?.message;
+      const defaultError = 'There was an error saving a task';
+      this.toast.presentErrorToast(errorMessage || defaultError);
     }
   }
 
@@ -248,5 +338,9 @@ export class TasksComponent implements OnInit, OnDestroy {
     const removedTask = currentDeletedTasks.splice(deletedTaskFoundIndex, 1)[0];
     this.deletedTasks.data = [...currentDeletedTasks];
     this.addTaskToOriginalTable(removedTask);
+  }
+
+  async openModalTaskChangeHistory(task?: ITask): Promise<void> {
+    await this.modal.openModalTaskChangeHistory(task);
   }
 }

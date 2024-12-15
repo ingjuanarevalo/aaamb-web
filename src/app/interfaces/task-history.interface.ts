@@ -1,4 +1,5 @@
 export interface ITaskHistory {
-    change: string;
-    date: string;
+  _id: string;
+  change: string;
+  date: string;
 }

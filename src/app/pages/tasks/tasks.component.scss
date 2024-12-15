@@ -30,13 +30,52 @@
       margin-top: 1.5rem;
     }
   }
+  .table-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
   table {
     width: 100%;
+    margin-top: 1rem;
     .task-options {
       display: flex;
       align-items: center;
       button {
         margin-right: 0.5rem;
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+    .no-data-cell {
+      padding: 1rem;
+      text-align: center;
+    }
+  }
+  .filter {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    &-header {
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--mat-sys-primary);
+    }
+    &-content {
+      .tags {
+        margin-top: 0.75rem;
+      }
+    }
+    &-actions {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      button {
+        margin-right: 1rem;
         &:last-child {
           margin-right: 0;
         }
