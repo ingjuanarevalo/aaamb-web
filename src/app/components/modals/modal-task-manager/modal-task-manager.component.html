@@ -4,7 +4,9 @@
   <mat-icon class="close-button" (click)="confirmCloseModal()">cancel</mat-icon>
 </div>
 <mat-dialog-content>
-  @if (taskForm) {
+  @if (isLoadingTask || !taskForm) {
+    <mat-spinner class="page-spinner"></mat-spinner>
+  } @else {
     <form [formGroup]="taskForm" class="row">
       <div class="col-12">
         <div class="form-control">

@@ -182,7 +182,7 @@
                 <button mat-icon-button color="primary" matTooltip="View task's change history" (click)="openModalTaskChangeHistory(element)">
                   <mat-icon>history</mat-icon>
                 </button>
-                <button mat-icon-button color="primary" matTooltip="Edit task" (click)="openModalManageTask(element)">
+                <button mat-icon-button color="primary" matTooltip="Edit task" (click)="openModalManageTask(element._id)">
                   <mat-icon>edit</mat-icon>
                 </button>
                 <button mat-icon-button color="primary" matTooltip="Delete task" (click)="confirmDeleteTask(element)">

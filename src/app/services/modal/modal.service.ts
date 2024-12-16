@@ -15,7 +15,7 @@ export class ModalService {
     private dialog: MatDialog
   ) {}
 
-  async openModalManageTask(task?: ITask): Promise<any> {
+  async openModalManageTask(taskId?: string): Promise<any> {
     if (!isPlatformBrowser(this.platformId)) return;
 
     const screenWidth = window.innerWidth;
@@ -41,7 +41,7 @@ export class ModalService {
       maxHeight: '80vh',
       height: 'fit-content',
       autoFocus: false,
-      data: { task }
+      data: { taskId }
     });
 
     return firstValueFrom(dialogRef.afterClosed()).then((result) => (result ? result : false));

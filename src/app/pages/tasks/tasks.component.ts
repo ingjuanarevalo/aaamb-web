@@ -225,8 +225,8 @@ export class TasksComponent implements OnInit, OnDestroy {
     this.deletedTasks.filterPredicate = (data: ITask, filter: string) => data.title.toLowerCase().includes(filter);
   }
 
-  async openModalManageTask(task?: ITask): Promise<void> {
-    const result = await this.modal.openModalManageTask(task);
+  async openModalManageTask(taskId?: string): Promise<void> {
+    const result = await this.modal.openModalManageTask(taskId);
     if (!result?.task) return;
     this.addTaskToOriginalTable(result.task);
   }

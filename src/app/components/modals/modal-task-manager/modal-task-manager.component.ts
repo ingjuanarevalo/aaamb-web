@@ -42,6 +42,7 @@ import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
   styleUrl: './modal-task-manager.component.scss'
 })
 export class ModalTaskManagerComponent implements OnInit, OnDestroy {
+  isLoadingTask = true;
   editMode = false;
   taskForm!: FormGroup;
   isSavingTask = false;
@@ -74,30 +75,42 @@ export class ModalTaskManagerComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  initForm(): void {
-    const receivedData = this.data ? cloneDeep(this.data) : null;
-    const receivedTask: ITask = receivedData?.task;
-    if (receivedTask) {
+  async getTaskById(): Promise<ITask | undefined> {
+    try {
+      const { task }: { task: ITask } = await firstValueFrom(this.api.getTaskById(this.taskId));
+      return task;
+    } catch (errorResponse: any) {
+      const errorMessage = errorResponse?.error?.message;
+      const defaultError = 'There was an error fetching a task';
+      this.toast.presentErrorToast(errorMessage || defaultError);
+      return;
+    }
+  }
+
+  async initForm(): Promise<void> {
+    const taskId = this.data?.taskId || null;
+    let existingTask: ITask | undefined;
+    if (taskId) {
       this.editMode = true;
-      this.taskId = receivedTask._id;
+      this.taskId = taskId;
+      existingTask = await this.getTaskById();
     }
 
     this.taskForm = new FormGroup(
       {
-        title: new FormControl(receivedTask?.title || null, [Validators.required, Validators.minLength(3)]),
-        description: new FormControl(receivedTask?.description || null, Validators.maxLength(500)),
-        status: new FormControl(receivedTask?.status || ETaskStatus.Pending, Validators.required),
-        priority: new FormControl(receivedTask?.priority || ETaskPriority.Medium),
-        dueDate: new FormControl(receivedTask?.dueDate ? DateTime.fromISO(receivedTask.dueDate) : null, Validators.required),
-        dueDateTime: new FormControl(receivedTask?.dueDate ? DateTime.fromISO(receivedTask.dueDate) : null, Validators.required),
-        tags: new FormControl(receivedTask?.tags || [])
+        title: new FormControl(existingTask?.title || null, [Validators.required, Validators.minLength(3)]),
+        description: new FormControl(existingTask?.description || null, Validators.maxLength(500)),
+        status: new FormControl(existingTask?.status || ETaskStatus.Pending, Validators.required),
+        priority: new FormControl(existingTask?.priority || ETaskPriority.Medium),
+        dueDate: new FormControl(existingTask?.dueDate ? DateTime.fromISO(existingTask.dueDate) : null, Validators.required),
+        dueDateTime: new FormControl(existingTask?.dueDate ? DateTime.fromISO(existingTask.dueDate) : null, Validators.required),
+        tags: new FormControl(existingTask?.tags || [])
       },
       { validators: CustomValidator.validateDueDate }
     );
 
-    const x = this.taskForm.controls['tags'];
-
     this.listenForChanges();
+    this.isLoadingTask = false;
   }
 
   listenForChanges(): void {
@@ -124,8 +137,13 @@ export class ModalTaskManagerComponent implements OnInit, OnDestroy {
   addTag(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
     if (value) {
-      const currentTags = this.taskForm.get('tags')?.value;
-      currentTags.push(value);
+      const currentTags: Array<string> = this.taskForm.get('tags')?.value;
+      const tagExists = currentTags.includes(value);
+      if (!tagExists) {
+        currentTags.push(value);
+      } else {
+        this.toast.presentErrorToast('You cannot add a repeated tag');
+      }
     }
     event.chipInput.clear();
   }
