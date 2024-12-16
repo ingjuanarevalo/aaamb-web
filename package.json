@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:local": "npm run build && node dist/aaamb-web/server/server.mjs",
-    "serve:prod": "npm run build && pm2 reload ecosystem.config.js --env production"
+    "serve:prod": "pm2 reload ecosystem.config.js --env production"
   },
   "private": true,
   "dependencies": {
